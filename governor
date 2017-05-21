@@ -2,9 +2,9 @@
 
 function show_help {
     printf "Usage:\n\n"
-    printf "./governor.sh check       - show active governor for each cpu core\n"
-    printf "./governor.sh performance - change to performance governor\n"
-    printf "./governor.sh powersave   - change to powersave governor\n"
+    printf "governor check       - show active governor for each cpu core\n"
+    printf "governor performance - change to performance governor\n"
+    printf "governor powersave   - change to powersave governor\n"
     exit
 }
 

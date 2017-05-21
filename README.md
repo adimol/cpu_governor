@@ -2,8 +2,10 @@
 
 A bash program that checks or changes the active CPU governor for each core.
 
+Place script in /usr/bin/
+
 Usage:
 
-./governor.sh check       - show active governor for each cpu core <br />
-./governor.sh performance - change to performance governor <br />
-./governor.sh powersave   - change to powersave governor <br />
+governor check       - show active governor for each cpu core <br />
+governor performance - change to performance governor <br />
+governor powersave   - change to powersave governor <br />
