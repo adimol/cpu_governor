@@ -2,35 +2,60 @@
 
 function show_help {
     printf "Usage:\n\n"
-    printf "governor check       - show active governor for each cpu core\n"
-    printf "governor performance - change to performance governor\n"
-    printf "governor powersave   - change to powersave governor\n"
+    printf "governor check\n"
+    printf "      show active governor for each cpu core and available governors\n\n"
+    printf "governor <selected governor>\n"
+    printf "      change to selected governor for all cpus\n\n"
+    printf "governor <cpuid> <selected governor>\n"
+    printf "      change to selected governor for chosen cpu id\n"
+    printf "      e.g: 'governor 0 powersave' - will change the cpu0 governor to powersave\n\n"
     exit
 }
 
-if [ $# -eq 0 ]; then
+function check_governor {
+    printf "\nSelected governors:\n"
+    for (( i = 0; i < $nr_cpu; i++)) do
+        location="/sys/devices/system/cpu/cpu"$i"/cpufreq/"
+        echo "cpu$i - $(cat $location/scaling_governor)"
+    done
+
+    printf "\nAvaibale governors:\n"
+    for (( i = 0; i < $nr_cpu; i++)) do
+        location="/sys/devices/system/cpu/cpu"$i"/cpufreq/"
+        echo "cpu$i - $(cat $location/scaling_available_governors)"
+    done
+}
+
+function change_governor {
+    if [ -z "$2" ]; then
+        for (( i = 0; i < $nr_cpu; i++)) do
+            location="/sys/devices/system/cpu/cpu"$i"/cpufreq/"
+            if grep -w $1 $location/scaling_available_governors > /dev/null 2>&1; then
+                echo $1 | sudo tee $location/scaling_governor > /dev/null 2>&1
+                echo "cpu$i changed to $1"
+            else
+                echo "Failed to change cpu$i to $1"
+            fi
+        done
+    else
+        location="/sys/devices/system/cpu/cpu"$1"/cpufreq/"
+        if grep -w $2 $location/scaling_available_governors > /dev/null 2>&1; then
+            echo $2 | sudo tee $location/scaling_governor > /dev/null 2>&1
+            echo "cpu$1 changed to $2"
+        else
+            echo "Failed to change cpu$1 to $2"
+        fi
+    fi
+}
+
+if [ $# -eq 0 ] || [ "$1" == "help" ]; then
     show_help
 fi
 
 nr_cpu=$(grep -c ^processor /proc/cpuinfo)
 
 if [ "$1" == "check" ]; then
-    for (( i = 0; i < $nr_cpu; i++)) do
-        location="/sys/devices/system/cpu/cpu"$i"/cpufreq/scaling_governor"
-        cat $location
-    done
-
-elif [ "$1" == "performance" ]; then
-    for (( i = 0; i < $nr_cpu; i++)) do
-        location="/sys/devices/system/cpu/cpu"$i"/cpufreq/scaling_governor"
-        echo "performance" | sudo tee $location
-    done
-
-elif [ "$1" == "powersave" ]; then
-    for (( i = 0; i < $nr_cpu; i++)) do
-        location="/sys/devices/system/cpu/cpu"$i"/cpufreq/scaling_governor"
-        echo "powersave" | sudo tee $location
-    done
+    check_governor
 else
-    show_help
+    change_governor $1 $2
 fi

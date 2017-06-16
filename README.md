@@ -6,6 +6,12 @@ Place script in /usr/bin/
 
 Usage:
 
-governor check       - show active governor for each cpu core <br />
-governor performance - change to performance governor <br />
-governor powersave   - change to powersave governor <br />
+**governor check<br />**
+    show active governor for each cpu core and available governors<br />
+
+**governor \<selected governor\><br />**
+change to selected governor for all cpus<br />
+
+**governor \<cpuid\> \<selected governor\><br />**
+    change to selected governor for chosen cpu id<br />
+    e.g: 'governor 0 powersave' - will change the cpu0 governor to powersave<br />
